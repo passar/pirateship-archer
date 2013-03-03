@@ -10,6 +10,9 @@ Prickspelet av Andreas Sandskär
  Poäng skrivs till fil som highscore.
  */
 
+Bubb sp1;
+float c = 200, v = 200;
+
 float u, i, j, k, l, o;
 int farg;
 PrintWriter output;
@@ -24,9 +27,11 @@ void setup() {
   o = (height+width)/12;
   l = o/2;
 
+  sp1 = new Bubb();
+
   springs[0] = new Spring(240, 260, 40, 0.98, 8.0, 0.1, springs, 0); 
   springs[1] = new Spring(320, 210, 120, 0.95, 9.0, 0.1, springs, 1); 
-  
+
 
   //startvärden för bollen
   //rita upp bollen
@@ -37,6 +42,10 @@ void setup() {
 }
 void draw() {
   background(204);
+
+  sp1.display();
+
+
   for (int i = 0; i < num; i++) { 
     springs[i].update(); 
     springs[i].display();
@@ -235,6 +244,34 @@ class Spring
     move = false; 
     rest_posx = xpos;
     rest_posy = ypos;
+  }
+}
+
+class Bubble {
+  float x, y;
+  float diameter=35;
+  float speed;
+  float r=120;
+  float g=100;
+
+  void display() {
+    stroke(0);
+    fill(r, g, 255, 150);
+    ellipse(x, y, diameter, diameter);
+  }
+}
+
+class Bubb {
+  float x, y, diameter;
+  Bubb() {
+    x = c;
+    y = v;
+    diameter = 20;
+  }
+  void display() {
+    stroke(0);
+    fill(10, 10, 255, 150);
+    ellipse(x, y, diameter, diameter);
   }
 }
 
