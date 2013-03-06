@@ -10,67 +10,55 @@ Prickspelet av Andreas Sandskär
  Poäng skrivs till fil som highscore.
  */
 
+int antal = 3;
+Bubb[] bubblare = new Bubb[antal];
 Bubb sp1;
+
 float c = 200, v = 200;
 
 float u, i, j, k, l, o;
 int farg;
 PrintWriter output;
-int num = 2; 
-Spring[] springs = new Spring[num]; 
 
 
 void setup() {
-  size(340, 550);
+//  size(200, 400);
   i = width;
   u = height;
   o = (height+width)/12;
   l = o/2;
-
-  sp1 = new Bubb();
-
-  springs[0] = new Spring(240, 260, 40, 0.98, 8.0, 0.1, springs, 0); 
-  springs[1] = new Spring(320, 210, 120, 0.95, 9.0, 0.1, springs, 1); 
-
-
-  //startvärden för bollen
-  //rita upp bollen
+ 
+ //startvärden för bollen
   slumpa();
-  boll();
+ 
+  //sp1 = new Bubb();
+  
+  bubblare[0] = new Bubb();
+  slumpa();
+  bubblare[1] = new Bubb();
+  slumpa();
+  bubblare[2] = new Bubb();
+
+
   //poäng
   output = createWriter("positions.txt");
 }
 void draw() {
-  background(204);
+  // background(204);
 
-  sp1.display();
-
-
-  for (int i = 0; i < num; i++) { 
-    springs[i].update(); 
-    springs[i].display();
-  } 
+  //sp1.display();
+  bubblare[0].display();
+  bubblare[1].display();
+  bubblare[2].display();
 
   rora();
   klicka();
   boll();
-  //  point(mouseX, mouseY);
+ // point(mouseX, mouseY);
   line(j, k, mouseX, mouseY);
 }
 
-void mousePressed() 
-{
-  for (int i = 0; i < num; i++) { 
-    springs[i].pressed();
-  }
-}
 
-void mouseReleased() 
-{
-  for (int i=0; i<num; i++) { 
-    springs[i].released();
-  }
-}
 
 void slumpa() {
   //bollen ska alltid hamna innom ramen för helheten
@@ -90,13 +78,14 @@ void boll() {
 
 void rora() {
   //lägg fram en ny boll och bakgrund när musen går över bollensyta
-  // lösningen är falsk för ytan är kvadatisk
-  if (mouseX >= j-l && mouseX <= j+l && mouseY >= k-l && mouseY <= k+l) {
+
+    if (sqrt(sq(j - mouseX) + sq(k - mouseY)) < l ) {
     //byt färg på den
     farg = farg + 25;
     if (farg > 255) {
       farg = 0;
     }
+
     //slmunpa nya värden för bollens possition
     slumpa();
     //rita över den gamla pricken
@@ -126,151 +115,19 @@ void omkring() {
   }
 }
 
-class Spring 
-{ 
-  // Screen values 
-  float xpos, ypos;
-  float tempxpos, tempypos; 
-  int size = 20; 
-  boolean over = false; 
-  boolean move = false; 
-
-  // Spring simulation constants 
-  float mass;       // Mass 
-  float k = 0.2;    // Spring constant 
-  float damp;       // Damping 
-  float rest_posx;  // Rest position X 
-  float rest_posy;  // Rest position Y 
-
-  // Spring simulation variables 
-  //float pos = 20.0; // Position 
-  float velx = 0.0;   // X Velocity 
-  float vely = 0.0;   // Y Velocity 
-  float accel = 0;    // Acceleration 
-  float force = 0;    // Force 
-
-  Spring[] friends;
-  int me;
-
-  // Constructor
-  Spring(float x, float y, int s, float d, float m, 
-  float k_in, Spring[] others, int id) 
-  { 
-    xpos = tempxpos = x; 
-    ypos = tempypos = y;
-    rest_posx = x;
-    rest_posy = y;
-    size = s;
-    damp = d; 
-    mass = m; 
-    k = k_in;
-    friends = others;
-    me = id;
-  } 
-
-  void update() 
-  { 
-    if (move) { 
-      rest_posy = mouseY; 
-      rest_posx = mouseX;
-    } 
-
-    force = -k * (tempypos - rest_posy);  // f=-ky 
-    accel = force / mass;                 // Set the acceleration, f=ma == a=f/m 
-    vely = damp * (vely + accel);         // Set the velocity 
-    tempypos = tempypos + vely;           // Updated position 
-
-    force = -k * (tempxpos - rest_posx);  // f=-ky 
-    accel = force / mass;                 // Set the acceleration, f=ma == a=f/m 
-    velx = damp * (velx + accel);         // Set the velocity 
-    tempxpos = tempxpos + velx;           // Updated position 
-
-
-    if ((overEvent() || move) && !otherOver() ) { 
-      over = true;
-    } 
-    else { 
-      over = false;
-    }
-  } 
-
-  // Test to see if mouse is over this spring
-  boolean overEvent() {
-    float disX = tempxpos - mouseX;
-    float disY = tempypos - mouseY;
-    if (sqrt(sq(disX) + sq(disY)) < size/2 ) {
-      return true;
-    } 
-    else {
-      return false;
-    }
-  }
-
-  // Make sure no other springs are active
-  boolean otherOver() {
-    for (int i=0; i<num; i++) {
-      if (i != me) {
-        if (friends[i].over == true) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  void display() 
-  { 
-    if (over) { 
-      fill(153);
-    } 
-    else { 
-      fill(255);
-    } 
-    ellipse(tempxpos, tempypos, size, size);
-  } 
-
-  void pressed() 
-  { 
-    if (over) { 
-      move = true;
-    } 
-    else { 
-      move = false;
-    }
-  } 
-
-  void released() 
-  { 
-    move = false; 
-    rest_posx = xpos;
-    rest_posy = ypos;
-  }
-}
-
-class Bubble {
-  float x, y;
-  float diameter=35;
-  float speed;
-  float r=120;
-  float g=100;
-
-  void display() {
-    stroke(0);
-    fill(r, g, 255, 150);
-    ellipse(x, y, diameter, diameter);
-  }
-}
-
 class Bubb {
+  Bubb[] andra;
   float x, y, diameter;
+  
   Bubb() {
-    x = c;
-    y = v;
-    diameter = 20;
+    andra = bubblare;
+    x = c =j;
+    y = v =k;
+    diameter = l;
+    
   }
   void display() {
     stroke(0);
-    fill(10, 10, 255, 150);
     ellipse(x, y, diameter, diameter);
   }
 }
